@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mine Labs — Venue Platform Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'Inter',sans-serif}
+
+/* Scale container */
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#scaler{width:1920px;height:1080px;transform-origin:center center;position:relative}
+
+/* Slides */
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:none}
+.slide.active{display:block}
+
+/* Deck CSS */
+/* ── Shared deck styles ───────────────────────────────── */
+section { padding: 128px; font-family: 'Inter', Arial, sans-serif; }
+
+/* Dark slides */
+.dark { background: #0E0601; }
+.dark h1, .dark h2, .dark h3, .dark p, .dark li { color: #FEFCE8; }
+
+/* Light slides */
+.light { background: #FFFDF5; }
+.light h1, .light h2, .light h3 { color: #0F172A; }
+.light p, .light li { color: #4B5563; }
+
+/* Purple accent slide */
+.purple-bg { background: #7C2D12; }
+
+/* Headings */
+h1, h2, h3 { font-family: 'Space Grotesk', Arial, sans-serif; }
+h1 { font-size: 96px; font-weight: 800; line-height: 1.0; letter-spacing: -.03em; }
+h2 { font-size: 64px; font-weight: 700; line-height: 1.1; letter-spacing: -.025em; }
+h3 { font-size: 36px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+p { font-size: 28px; line-height: 1.55; }
+
+/* Eyebrow label */
+.eyebrow { font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #F59E0B; margin-bottom: 12px; }
+.eyebrow-light { font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(252,211,77,.75); margin-bottom: 12px; }
+
+/* Stat block */
+.stat-num { font-family: 'Space Grotesk', Arial, sans-serif; font-size: 80px; font-weight: 800; line-height: 1.0; letter-spacing: -.03em; color: #fff; }
+.stat-num.green { color: #34D399; }
+.stat-num.violet { color: #FDE68A; }
+.stat-label { font-size: 24px; font-weight: 600; color: rgba(255,255,255,.5); margin-top: 6px; }
+
+/* Cards */
+.card { background: #fff; border: 1.5px solid #FEFCE8; border-radius: 20px; padding: 40px 36px; }
+.card-dark { background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.1); border-radius: 20px; padding: 36px 32px; }
+.card-purple { background: rgba(245,158,11,.1); border: 1.5px solid rgba(245,158,11,.25); border-radius: 20px; padding: 36px 32px; }
+
+/* Tags / pills */
+.pill { display: inline-block; font-size: 20px; font-weight: 700; padding: 6px 18px; border-radius: 40px; background: rgba(245,158,11,.12); color: #F59E0B; }
+.pill-green { display: inline-block; font-size: 20px; font-weight: 700; padding: 6px 18px; border-radius: 40px; background: rgba(5,150,105,.1); color: #059669; }
+
+/* Step number */
+.step-num { font-family: 'Space Grotesk', Arial, sans-serif; font-size: 20px; font-weight: 800; color: #FDE68A; letter-spacing: .08em; margin-bottom: 14px; }
+
+/* Footer band */
+.footer-band { position: absolute; bottom: 56px; left: 128px; right: 128px; display: flex; align-items: center; justify-content: space-between; }
+.footer-band p { font-size: 22px; color: rgba(255,255,255,.25); }
+.footer-band-light p { font-size: 22px; color: #FDE68A; }
+
+/* Divider line */
+.divider { height: 2px; background: linear-gradient(90deg, #F59E0B, #FDE68A 50%, transparent); border-radius: 1px; margin-bottom: 40px; }
+.divider-light { height: 1.5px; background: #FEFCE8; border-radius: 1px; }
+
+
+/* Nav buttons */
+.nav-btn{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:#fff;font-size:48px;width:64px;height:100px;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;z-index:100;transition:background .2s}
+.nav-btn:hover{background:rgba(255,255,255,.25)}
+#prev{left:12px}
+#next{right:12px}
+.nav-btn:disabled{opacity:.18;cursor:default}
+
+/* Progress dots */
+#dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:100}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s,transform .2s}
+.dot.active{background:#F59E0B;transform:scale(1.3)}
+
+/* Slide counter */
+#counter{position:fixed;bottom:22px;right:28px;font-size:18px;color:rgba(255,255,255,.35);z-index:100;font-family:'Space Grotesk',sans-serif;font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="scaler">
+    <div class="slide" id="slide-0"><section id="cover" class="dark" data-transition="fade">
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg,#0D0520 0%,#0E0601 55%,#1A0A01 100%)"></div>
+  <div style="position:absolute;left:-180px;top:-180px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(120,60,220,.12),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;right:0;top:200px;width:900px;height:900px;background:radial-gradient(ellipse,rgba(245,158,11,.18),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none">
+    <span style="position:absolute;width:4px;height:4px;background:#FDE68A;border-radius:50%;opacity:.85;top:65px;left:1180px;box-shadow:0 0 10px 3px rgba(253,230,138,.5)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.55;top:140px;left:1420px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.7;top:90px;left:1680px;box-shadow:0 0 8px 2px rgba(253,230,138,.4)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4;top:280px;left:1250px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.6;top:195px;left:1560px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.5;top:390px;left:1310px"></span>
+    <span style="position:absolute;width:4px;height:4px;background:#FDE68A;border-radius:50%;opacity:.9;top:460px;left:1700px;box-shadow:0 0 12px 4px rgba(253,230,138,.5)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.45;top:355px;left:1850px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.65;top:600px;left:1480px;box-shadow:0 0 8px 2px rgba(253,230,138,.35)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4;top:710px;left:1220px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.7;top:800px;left:1620px;box-shadow:0 0 8px 2px rgba(253,230,138,.4)"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.35;top:900px;left:1380px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.6;top:960px;left:1760px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#FDE68A;border-radius:50%;opacity:.5;top:28px;left:420px"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.4;top:50px;left:620px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.65;top:35px;left:900px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.35;top:1020px;left:580px"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#FDE68A;border-radius:50%;opacity:.4;top:980px;left:280px"></span>
+  </div>
+  <div style="position:absolute;left:0;top:0;width:8px;height:1080px;background:linear-gradient(180deg,#F59E0B,#FDE68A,#F97316)"></div>
+  <div style="position:absolute;left:140px;top:200px;width:1000px">
+    <p class="eyebrow-light" style="margin-bottom:36px">Guest Experience Platform · 2026</p>
+    <h1 style="font-size:144px;color:#fff;letter-spacing:-.05em;line-height:.9;margin-bottom:32px">mine<span style="color:#FDE68A">.</span></h1>
+    <h2 style="font-size:54px;font-weight:800;color:#fff;letter-spacing:-.025em;line-height:1.05;margin-bottom:4px">Manifest Imagination.</h2>
+    <h2 style="font-size:54px;font-weight:400;color:#FDE68A;letter-spacing:-.025em;line-height:1.05;margin-bottom:24px">Native Execution.</h2>
+    <p style="font-size:26px;color:rgba(255,255,255,.42);margin-bottom:32px">Think it. We build it. Yours.</p>
+    <div style="height:2px;width:320px;background:linear-gradient(90deg,#F59E0B,rgba(252,211,77,.2));border-radius:1px;margin-bottom:32px"></div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px">
+      <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.22);border-radius:40px;padding:8px 22px">
+        <p style="font-size:22px;font-weight:700;color:#34D399">−40% wait times</p>
+      </div>
+      <div style="background:rgba(252,211,77,.1);border:1px solid rgba(252,211,77,.22);border-radius:40px;padding:8px 22px">
+        <p style="font-size:22px;font-weight:700;color:#FDE68A">+25% spending</p>
+      </div>
+      <div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:40px;padding:8px 22px">
+        <p style="font-size:22px;font-weight:700;color:#FDE68A">64% cashless</p>
+      </div>
+    </div>
+    <p style="font-size:26px;color:rgba(255,255,255,.32)">Software & AI Company · Tagoloan, Misamis Oriental</p>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-1"><section id="problem" class="light" data-transition="fade">
+  <p class="eyebrow">The Gap</p>
+  <h2 style="margin-bottom:12px">What world-class parks solved years ago.<br>Still costing local venues every weekend.</h2>
+  <p style="font-size:24px;color:#6B7280;margin-bottom:20px;max-width:1100px">Disney, Universal, Enchanted Kingdom, and Aqua Planet all built technology to fix these problems. The same gaps are costing Philippine venues thousands of pesos every weekend.</p>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:28px;flex-wrap:wrap">
+    <p style="font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#D97706">Already solved by:</p>
+    <span style="font-size:18px;font-weight:800;color:#D97706;background:rgba(217,119,6,.07);border:1.5px solid rgba(217,119,6,.18);padding:5px 18px;border-radius:30px">Disney</span>
+    <span style="font-size:18px;font-weight:800;color:#D97706;background:rgba(217,119,6,.07);border:1.5px solid rgba(217,119,6,.18);padding:5px 18px;border-radius:30px">Universal Studios</span>
+    <span style="font-size:18px;font-weight:800;color:#D97706;background:rgba(217,119,6,.07);border:1.5px solid rgba(217,119,6,.18);padding:5px 18px;border-radius:30px">Enchanted Kingdom</span>
+    <span style="font-size:18px;font-weight:800;color:#D97706;background:rgba(217,119,6,.07);border:1.5px solid rgba(217,119,6,.18);padding:5px 18px;border-radius:30px">Aqua Planet</span>
+  </div>
+  <div style="display:flex;gap:24px;align-items:flex-start">
+    <div class="card" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <p style="font-size:44px;line-height:1">😤</p>
+        <span style="font-size:15px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);padding:4px 12px;border-radius:20px;white-space:nowrap">Disney Genie+ fixed this</span>
+      </div>
+      <h3 style="color:#0F172A;margin-bottom:10px">Guests wait.<br>Guests leave frustrated.</h3>
+      <p style="font-size:24px">Long lines in tropical heat drain energy and spending. By ride 3, families are thinking about going home.</p>
+      <p style="font-size:21px;color:#DC2626;font-weight:800;margin-top:18px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.15);padding:11px 16px;border-radius:10px">📉 Fewer rides, less food, early exits</p>
+    </div>
+    <div class="card" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <p style="font-size:44px;line-height:1">💸</p>
+        <span style="font-size:15px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);padding:4px 12px;border-radius:20px;white-space:nowrap">Universal went cashless in 2015</span>
+      </div>
+      <h3 style="color:#0F172A;margin-bottom:10px">Cash slows<br>everything down.</h3>
+      <p style="font-size:24px">Every transaction that needs change creates a second queue. High-traffic periods grind concessions to a halt.</p>
+      <p style="font-size:21px;color:#DC2626;font-weight:800;margin-top:18px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.15);padding:11px 16px;border-radius:10px">📉 Slower sales, lost impulse buys</p>
+    </div>
+    <div class="card" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <p style="font-size:44px;line-height:1">🌫️</p>
+        <span style="font-size:15px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);padding:4px 12px;border-radius:20px;white-space:nowrap">EK has a live ops center</span>
+      </div>
+      <h3 style="color:#0F172A;margin-bottom:10px">You can't manage<br>what you can't see.</h3>
+      <p style="font-size:24px">No live picture of crowd flow, queue depth, or zone revenue. Managers react to problems. They never see them coming.</p>
+      <p style="font-size:21px;color:#DC2626;font-weight:800;margin-top:18px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.15);padding:11px 16px;border-radius:10px">📉 Reactive decisions, missed peaks</p>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-2"><section id="solution" class="light" data-transition="fade">
+  <p class="eyebrow">What We Build</p>
+  <h2 style="margin-bottom:14px">The same systems that run Disney<br>and Universal. Built for your venue.</h2>
+  <p style="font-size:24px;color:#6B7280;margin-bottom:40px">We don't start from scratch. We take what the world's best parks use and build you your own version, in 8 weeks.</p>
+  <div style="display:flex;gap:24px;align-items:stretch">
+    <div style="flex:1;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:20px;padding:40px 36px">
+      <p style="font-size:44px;margin-bottom:16px">📱</p>
+      <h3 style="color:#7C2D12;margin-bottom:14px">01<br>Guest App</h3>
+      <div style="height:3px;width:60px;background:#F59E0B;border-radius:2px;margin-bottom:20px"></div>
+      <p style="font-size:26px;color:#4B5563">Your guests book slots from their phone and get a notification when it's their turn. No more standing in line. While they wait, they're browsing your food menu or buying an upgrade.</p>
+    </div>
+    <div style="flex:1;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:20px;padding:40px 36px">
+      <p style="font-size:44px;margin-bottom:16px">💳</p>
+      <h3 style="color:#7C2D12;margin-bottom:14px">02<br>Cashless Payments</h3>
+      <div style="height:3px;width:60px;background:#F59E0B;border-radius:2px;margin-bottom:20px"></div>
+      <p style="font-size:26px;color:#4B5563">GCash, Maya, QR Ph: all integrated. Guests load a wallet once and tap to pay at every counter. Done in 2 seconds. No counting change, no cash errors at end of day.</p>
+    </div>
+    <div style="flex:1;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:20px;padding:40px 36px">
+      <p style="font-size:44px;margin-bottom:16px">📊</p>
+      <h3 style="color:#7C2D12;margin-bottom:14px">03<br>Live Dashboard</h3>
+      <div style="height:3px;width:60px;background:#F59E0B;border-radius:2px;margin-bottom:20px"></div>
+      <p style="font-size:26px;color:#4B5563">Your managers see crowd flow, queue depth, and zone revenue. In real time, from a tablet. When something needs attention, they know before it becomes a problem.</p>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-3"><section id="platform-preview" class="dark" data-transition="fade">
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg,#0E0601 0%,#1A0A01 50%,#0E0601 100%)"></div>
+  <div style="position:absolute;right:0;top:0;width:8px;height:1080px;background:linear-gradient(180deg,#F59E0B,#FDE68A,#F97316)"></div>
+  <div style="position:absolute;left:140px;top:72px;width:1640px">
+    <p class="eyebrow-light" style="margin-bottom:10px">The platform</p>
+    <h2 style="color:#fff;margin-bottom:32px">What it actually looks like.</h2>
+    <div style="display:flex;gap:52px;align-items:flex-start">
+
+      <!-- GUEST APP PHONE MOCKUP -->
+      <div style="width:380px;flex-shrink:0">
+        <p style="font-size:19px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,211,77,.5);margin-bottom:14px">📱 Guest App</p>
+        <div style="background:#1A0A01;border:3px solid rgba(252,211,77,.18);border-radius:44px;padding:14px;width:324px;box-shadow:0 0 80px rgba(245,158,11,.18)">
+          <div style="width:72px;height:14px;background:#0E0601;border-radius:7px;margin:0 auto 14px"></div>
+          <div style="background:#0E0601;border-radius:30px;padding:22px 18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+              <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#7C2D12,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:16px">✨</div>
+              <div>
+                <p style="font-size:16px;font-weight:800;color:#fff;font-family:'Space Grotesk',Arial,sans-serif;line-height:1.1">Golden FantasyLand</p>
+                <p style="font-size:12px;color:rgba(252,211,77,.6)">2,847 guests today</p>
+              </div>
+            </div>
+            <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:12px">Pick a Ride</p>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+              <div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:14px;padding:12px 14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <p style="font-size:15px;font-weight:700;color:#fff">Dragon Coaster 🎢</p>
+                  <span style="font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.1);padding:2px 8px;border-radius:6px">8 min</span>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-bottom:8px"><div style="width:72%;height:3px;background:#F59E0B;border-radius:2px"></div></div>
+                <div style="background:#F59E0B;border-radius:9px;padding:6px 0;text-align:center"><p style="font-size:14px;font-weight:700;color:#fff">Reserve Slot</p></div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <p style="font-size:15px;font-weight:700;color:#fff">Ferris Wheel 🎡</p>
+                  <span style="font-size:12px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.1);padding:2px 8px;border-radius:6px">22 min</span>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-bottom:8px"><div style="width:45%;height:3px;background:#FDE68A;border-radius:2px"></div></div>
+                <div style="background:rgba(252,211,77,.12);border:1px solid rgba(252,211,77,.2);border-radius:9px;padding:6px 0;text-align:center"><p style="font-size:14px;font-weight:700;color:#FDE68A">Reserve</p></div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <p style="font-size:15px;font-weight:700;color:#fff">Splash Zone 🌊</p>
+                  <span style="font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.1);padding:2px 8px;border-radius:6px">3 min</span>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-bottom:8px"><div style="width:28%;height:3px;background:#34D399;border-radius:2px"></div></div>
+                <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:9px;padding:6px 0;text-align:center"><p style="font-size:14px;font-weight:700;color:#34D399">Walk Up</p></div>
+              </div>
+            </div>
+            <div style="background:linear-gradient(135deg,#7C2D12,#F59E0B);border-radius:14px;padding:12px 16px">
+              <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:3px">My Wallet</p>
+              <p style="font-size:26px;font-weight:800;color:#fff;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">₱ 850.00</p>
+              <p style="font-size:11px;color:rgba(255,255,255,.4)">GCash connected · Tap to pay</p>
+            </div>
+          </div>
+          <div style="width:72px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:12px auto 0"></div>
+        </div>
+      </div>
+
+      <!-- OPERATOR DASHBOARD MOCKUP -->
+      <div style="flex:1">
+        <p style="font-size:19px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,211,77,.5);margin-bottom:14px">📊 Operator Dashboard</p>
+        <div style="background:#0E0601;border:2px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:0 0 80px rgba(245,158,11,.1)">
+          <!-- title bar -->
+          <div style="background:rgba(245,158,11,.14);border-bottom:1px solid rgba(255,255,255,.07);padding:11px 22px;display:flex;align-items:center;gap:14px">
+            <div style="display:flex;gap:6px">
+              <div style="width:10px;height:10px;border-radius:50%;background:#EF4444"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:#22C55E"></div>
+            </div>
+            <p style="font-size:14px;font-weight:700;color:rgba(255,255,255,.4);font-family:'Space Grotesk',Arial,sans-serif">Golden FantasyLand · Live Ops Dashboard</p>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+              <div style="width:7px;height:7px;border-radius:50%;background:#34D399"></div>
+              <p style="font-size:13px;color:rgba(52,211,153,.7);font-weight:700">LIVE</p>
+            </div>
+          </div>
+          <!-- KPI row -->
+          <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.05)">
+            <div style="flex:1;padding:14px 20px;border-right:1px solid rgba(255,255,255,.05)">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(252,211,77,.4);margin-bottom:3px">Guests Today</p>
+              <p class="dk-guests" style="font-size:36px;font-weight:800;color:#fff;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">2,847</p>
+            </div>
+            <div style="flex:1;padding:14px 20px;border-right:1px solid rgba(255,255,255,.05)">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(252,211,77,.4);margin-bottom:3px">Revenue</p>
+              <p class="dk-rev" style="font-size:36px;font-weight:800;color:#34D399;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">₱142K</p>
+            </div>
+            <div style="flex:1;padding:14px 20px;border-right:1px solid rgba(255,255,255,.05)">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(252,211,77,.4);margin-bottom:3px">Cashless Rate</p>
+              <p style="font-size:36px;font-weight:800;color:#FDE68A;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">68%</p>
+            </div>
+            <div style="flex:1;padding:14px 20px;border-right:1px solid rgba(255,255,255,.05)">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(252,211,77,.4);margin-bottom:3px">Avg Wait</p>
+              <p class="dk-wait" style="font-size:36px;font-weight:800;color:#F59E0B;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">24 min</p>
+            </div>
+            <div style="flex:1;padding:14px 20px">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(252,211,77,.4);margin-bottom:3px">Express Pass</p>
+              <p style="font-size:36px;font-weight:800;color:#F97316;font-family:'Space Grotesk',Arial,sans-serif;line-height:1">₱18K</p>
+            </div>
+          </div>
+          <!-- Queue + Revenue -->
+          <div style="display:flex">
+            <!-- Queue depths -->
+            <div style="flex:1;padding:18px 22px;border-right:1px solid rgba(255,255,255,.05)">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:14px">Queue Depths</p>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                    <p style="font-size:16px;font-weight:600;color:#FEFCE8">Dragon Coaster</p>
+                    <span class="q1-lbl" style="font-size:12px;font-weight:700;color:#F43F5E;background:rgba(244,63,94,.08);padding:1px 9px;border-radius:5px">42 min · HIGH</span>
+                  </div>
+                  <div style="height:7px;background:rgba(255,255,255,.05);border-radius:3px"><div class="q1-bar" style="width:85%;height:7px;background:linear-gradient(90deg,#F43F5E,#FB7185);border-radius:3px;transition:width .8s ease"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                    <p style="font-size:16px;font-weight:600;color:#FEFCE8">Ferris Wheel</p>
+                    <span class="q2-lbl" style="font-size:12px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.08);padding:1px 9px;border-radius:5px">22 min · MED</span>
+                  </div>
+                  <div style="height:7px;background:rgba(255,255,255,.05);border-radius:3px"><div class="q2-bar" style="width:55%;height:7px;background:linear-gradient(90deg,#F59E0B,#FDE68A);border-radius:3px;transition:width .8s ease"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                    <p style="font-size:16px;font-weight:600;color:#FEFCE8">Splash Zone</p>
+                    <span style="font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.08);padding:1px 9px;border-radius:5px">3 min · OK</span>
+                  </div>
+                  <div style="height:7px;background:rgba(255,255,255,.05);border-radius:3px"><div class="q3-bar" style="width:28%;height:7px;background:linear-gradient(90deg,#34D399,#6EE7B7);border-radius:3px;transition:width .8s ease"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                    <p style="font-size:16px;font-weight:600;color:#FEFCE8">Food Court</p>
+                    <span style="font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.08);padding:1px 9px;border-radius:5px">5 min · OK</span>
+                  </div>
+                  <div style="height:7px;background:rgba(255,255,255,.05);border-radius:3px"><div class="q4-bar" style="width:32%;height:7px;background:linear-gradient(90deg,#34D399,#6EE7B7);border-radius:3px;transition:width .8s ease"></div></div>
+                </div>
+              </div>
+            </div>
+            <!-- Revenue by zone -->
+            <div style="width:400px;flex-shrink:0;padding:18px 22px">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:14px">Revenue by Zone</p>
+              <div style="display:flex;flex-direction:column;gap:13px;margin-bottom:18px">
+                <div style="display:flex;align-items:center;gap:14px">
+                  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,.6);width:60px">Rides</p>
+                  <div style="flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px"><div style="width:78%;height:5px;background:#FDE68A;border-radius:3px"></div></div>
+                  <p style="font-size:15px;font-weight:700;color:#FDE68A;min-width:50px;text-align:right">₱78K</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,.6);width:60px">Food</p>
+                  <div style="flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px"><div style="width:42%;height:5px;background:#34D399;border-radius:3px"></div></div>
+                  <p style="font-size:15px;font-weight:700;color:#34D399;min-width:50px;text-align:right">₱38K</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,.6);width:60px">Merch</p>
+                  <div style="flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px"><div style="width:28%;height:5px;background:#F59E0B;border-radius:3px"></div></div>
+                  <p style="font-size:15px;font-weight:700;color:#F59E0B;min-width:50px;text-align:right">₱18K</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,.6);width:60px">Express</p>
+                  <div style="flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px"><div style="width:19%;height:5px;background:#F97316;border-radius:3px"></div></div>
+                  <p style="font-size:15px;font-weight:700;color:#F97316;min-width:50px;text-align:right">₱8K</p>
+                </div>
+              </div>
+              <div style="background:rgba(252,211,77,.07);border:1px solid rgba(252,211,77,.18);border-radius:10px;padding:12px 16px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#FDE68A;animation:pulse-ai 2s infinite"></div>
+                  <p style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(252,211,77,.55)">AI Insight</p>
+                </div>
+                <p class="ai-insight" style="font-size:14px;font-weight:600;color:rgba(252,211,77,.9);line-height:1.4">Dragon Coaster expected to clear in 18 min. Consider opening Express Pass window.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse-ai { 0%,100%{opacity:1} 50%{opacity:.35} }
+  </style>
+  <script>
+    (function(){
+      var insights = [
+        'Dragon Coaster expected to clear in 18 min. Consider opening Express Pass window.',
+        'Food Court revenue +32% vs yesterday. Peak approaching at 3pm.',
+        'Zone B crowd thinning. Push notification to draw guests to Splash Zone.',
+        'Ferris Wheel below threshold. Good window for walk-up admissions.'
+      ];
+      var ii = 0;
+      setInterval(function(){
+        ii = (ii+1) % insights.length;
+        var el = document.querySelector('.ai-insight');
+        if(el) el.textContent = insights[ii];
+      }, 3800);
+      var qstates = [[85,55,28,32],[79,62,35,25],[91,48,22,38],[83,58,30,28]];
+      var qi = 0;
+      setInterval(function(){
+        qi = (qi+1) % qstates.length;
+        var s = qstates[qi];
+        ['.q1-bar','.q2-bar','.q3-bar','.q4-bar'].forEach(function(sel,i){
+          var el = document.querySelector(sel);
+          if(el) el.style.width = s[i]+'%';
+        });
+      }, 2500);
+    })();
+  </script>
+
+  
+</section></div>
+<div class="slide" id="slide-4"><section id="proof" class="dark" data-transition="fade">
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg,#0D0520 0%,#0E0601 55%,#1A0A01 100%)"></div>
+  <div style="position:absolute;right:100px;top:100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(245,158,11,.15),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;left:-100px;bottom:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(120,60,220,.09),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none">
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.7;top:70px;left:1500px;box-shadow:0 0 8px 2px rgba(253,230,138,.4)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.45;top:150px;left:1750px"></span>
+    <span style="position:absolute;width:4px;height:4px;background:#FDE68A;border-radius:50%;opacity:.8;top:260px;left:1850px;box-shadow:0 0 10px 3px rgba(253,230,138,.5)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4;top:900px;left:1700px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.6;top:960px;left:1550px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#FDE68A;border-radius:50%;opacity:.5;top:40px;left:400px"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.4;top:55px;left:650px"></span>
+  </div>
+  <div style="position:absolute;left:140px;top:128px;width:1640px">
+    <p class="eyebrow-light" style="margin-bottom:8px">Benchmarked outcomes</p>
+    <h2 style="color:#fff;margin-bottom:8px">What your venue can expect.<br>Numbers we commit to.</h2>
+    <p style="font-size:26px;color:rgba(255,255,255,.45);margin-bottom:52px">Golden FantasyLand · Tagoloan, Misamis Oriental · Projected targets for 8-week delivery</p>
+    <div style="display:flex;gap:24px">
+      <div style="flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;padding:40px 32px;text-align:center">
+        <div class="stat-num green">−40%</div>
+        <p class="stat-label">Queue wait time</p>
+        <p style="font-size:22px;color:rgba(255,255,255,.3);margin-top:8px">Target within 6 months</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;padding:40px 32px;text-align:center">
+        <div class="stat-num green">+25%</div>
+        <p class="stat-label">Secondary spending</p>
+        <p style="font-size:22px;color:rgba(255,255,255,.3);margin-top:8px">Food, merch & Express Pass</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;padding:40px 32px;text-align:center">
+        <div class="stat-num violet">64%</div>
+        <p class="stat-label">Cashless rate</p>
+        <p style="font-size:22px;color:rgba(255,255,255,.3);margin-top:8px">Within Q1 post-launch</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;padding:40px 32px;text-align:center">
+        <div class="stat-num" style="color:#FDE68A">8</div>
+        <p class="stat-label">Weeks to live</p>
+        <p style="font-size:22px;color:rgba(255,255,255,.3);margin-top:8px">Discovery to go-live</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-5"><section id="features" class="light" data-transition="fade">
+  <p class="eyebrow">Side by side</p>
+  <h2 style="margin-bottom:12px">What Disney, Universal, and EK have.<br>What we build for you.</h2>
+  <p style="font-size:24px;color:#6B7280;margin-bottom:32px">Same capabilities. Built for GCash, the Philippine market, and your budget. Delivered in 8 weeks.</p>
+  <div style="border:1.5px solid #FDE68A;border-radius:20px;overflow:hidden">
+    <!-- Header row -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;background:#0E0601">
+      <div style="padding:18px 24px;border-right:1px solid rgba(255,255,255,.07)">
+        <p style="font-size:16px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.3)">Feature</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1px solid rgba(255,255,255,.07)">
+        <p style="font-size:20px;font-weight:700;color:rgba(255,255,255,.55)">Disney / Universal / EK</p>
+        <p style="font-size:14px;color:rgba(255,255,255,.25);margin-top:2px">Multi-billion dollar investment</p>
+      </div>
+      <div style="padding:18px 24px;background:rgba(245,158,11,.18)">
+        <p style="font-size:22px;font-weight:800;color:#FDE68A;font-family:'Space Grotesk',Arial,sans-serif">mine. for your venue</p>
+        <p style="font-size:14px;color:rgba(252,211,77,.5);margin-top:2px">8 weeks. Philippine market. Your budget.</p>
+      </div>
+    </div>
+    <!-- Row 1 -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;border-top:1.5px solid #FEFCE8">
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;background:#FFFBEB;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#0F172A">Virtual Queue</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;color:#4B5563">Disney Genie+ and Universal Virtual Line. Guests reserve rides from the app. Get notified when it's their turn.</p>
+      </div>
+      <div style="padding:18px 24px;background:#FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#F59E0B">✓ Guest app with ride slot booking and push alerts</p>
+      </div>
+    </div>
+    <!-- Row 2 -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;border-top:1.5px solid #FEFCE8">
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;background:#FFFBEB;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#0F172A">Cashless Payments</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;color:#4B5563">Magic Band (Disney), Universal cashless wristbands. Tap to pay at every food stall, merch counter, and ride.</p>
+      </div>
+      <div style="padding:18px 24px;background:#FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#F59E0B">✓ GCash + Maya + QR Ph. RFID wristband. Tap anywhere.</p>
+      </div>
+    </div>
+    <!-- Row 3 -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;border-top:1.5px solid #FEFCE8">
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;background:#FFFBEB;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#0F172A">Live Ops Dashboard</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;color:#4B5563">Every major park has a command center. Live crowd flow, revenue by zone, queue depths, automated staffing alerts.</p>
+      </div>
+      <div style="padding:18px 24px;background:#FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#F59E0B">✓ Real-time dashboard: queues, revenue, crowd, AI alerts</p>
+      </div>
+    </div>
+    <!-- Row 4 -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;border-top:1.5px solid #FEFCE8">
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;background:#FFFBEB;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#0F172A">AI Demand Forecasting</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;color:#4B5563">Disney uses AI to predict peak hours, adjust pricing, and move staff before lines form.</p>
+      </div>
+      <div style="padding:18px 24px;background:#FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#F59E0B">✓ AI insights panel. Predicts demand. Recommends action.</p>
+      </div>
+    </div>
+    <!-- Row 5 -->
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr;border-top:1.5px solid #FEFCE8">
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;background:#FFFBEB;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#0F172A">Premium Express Pass</p>
+      </div>
+      <div style="padding:18px 24px;border-right:1.5px solid #FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;color:#4B5563">Disney Lightning Lane. Universal Express. High-margin upsell that guests happily pay for.</p>
+      </div>
+      <div style="padding:18px 24px;background:#FEFCE8;display:flex;align-items:center">
+        <p style="font-size:19px;font-weight:700;color:#F59E0B">✓ In-app Express Pass. Instant premium revenue line.</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-6"><section id="taylorfit" class="light" data-transition="fade">
+  <p class="eyebrow">For TaylorFit</p>
+  <h2 style="margin-bottom:14px">Same platform. Different context.</h2>
+  <p style="font-size:26px;color:#4B5563;margin-bottom:44px">The three pieces that worked for a theme park work just as well for a fitness studio. Here's how they translate.</p>
+  <div style="display:flex;gap:0;border:1.5px solid #FDE68A;border-radius:20px;overflow:hidden">
+    <div style="width:220px;background:#0E0601;padding:32px 24px;display:flex;flex-direction:column;gap:0">
+      <p style="font-size:20px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,211,77,.5);margin-bottom:0">Platform</p>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-around;padding:28px 0">
+        <p style="font-size:28px;font-weight:700;color:#FDE68A">📱 Guest App</p>
+        <p style="font-size:28px;font-weight:700;color:#FDE68A">💳 Cashless</p>
+        <p style="font-size:28px;font-weight:700;color:#FDE68A">📊 Dashboard</p>
+      </div>
+    </div>
+    <div style="flex:1;border-left:1.5px solid #FDE68A">
+      <div style="padding:20px 32px;border-bottom:1.5px solid #FEFCE8;background:#FEFCE8">
+        <p style="font-size:20px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#D97706">Golden FantasyLand (Theme Park)</p>
+      </div>
+      <div style="padding:28px 32px;border-bottom:1.5px solid #FEFCE8;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Guests reserve ride slots, see wait times, get alerts when their window opens</p>
+      </div>
+      <div style="padding:28px 32px;border-bottom:1.5px solid #FEFCE8;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Top up at gate with GCash. Tap RFID wristband at every food stall and merch counter</p>
+      </div>
+      <div style="padding:28px 32px;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Ops team sees queue depths, zone revenue, crowd heatmap live</p>
+      </div>
+    </div>
+    <div style="flex:1;border-left:1.5px solid #FDE68A">
+      <div style="padding:20px 32px;border-bottom:1.5px solid #FEFCE8;background:#ECFDF5">
+        <p style="font-size:20px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#059669">TaylorFit (Fitness Studio)</p>
+      </div>
+      <div style="padding:28px 32px;border-bottom:1.5px solid #FEFCE8;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Members book classes, see open slots, get reminders. No front-desk guesswork, no overbooking.</p>
+      </div>
+      <div style="padding:28px 32px;border-bottom:1.5px solid #FEFCE8;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Pay monthly subs, drop-ins, and supplements with GCash. Members tap a QR, done.</p>
+      </div>
+      <div style="padding:28px 32px;min-height:112px">
+        <p style="font-size:26px;color:#4B5563">Manager sees which classes are full, which trainers have open slots, revenue by day</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-7"><section id="deliverables" class="light" data-transition="fade">
+  <p class="eyebrow">What you get</p>
+  <h2 style="margin-bottom:14px">Not a subscription. Not a template.<br>A platform built for you.</h2>
+  <p style="font-size:26px;color:#6B7280;margin-bottom:44px">We design it, build it, test it, and hand it over running.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">📱</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">Mobile app (iOS & Android)</h3>
+        <p style="font-size:24px;color:#4B5563">Your branding. Your name in the App Store. We build and submit it.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">🖥️</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">Operator web dashboard</h3>
+        <p style="font-size:24px;color:#4B5563">Built for the people who'll use it. Big numbers, clear indicators, one-click actions.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">💚</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">GCash, Maya & QR Ph</h3>
+        <p style="font-size:24px;color:#4B5563">Philippine payment rails, fully integrated and compliant. We handle the merchant setup.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">🤖</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">AI-powered insights</h3>
+        <p style="font-size:24px;color:#4B5563">Demand forecasting, trend analysis. The dashboard tells you what's likely to happen next.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">🔬</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">Full QA before you see it</h3>
+        <p style="font-size:24px;color:#4B5563">Wilfred, our co-founder, personally leads testing. Nothing reaches you broken.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:flex-start;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:16px;padding:28px 24px">
+      <p style="font-size:36px;min-width:44px">🚀</p>
+      <div>
+        <h3 style="font-size:28px;color:#0F172A;margin-bottom:6px">Launch + 24hr support</h3>
+        <p style="font-size:24px;color:#4B5563">We stay on-call for the first day live. If something breaks, we fix it. We don't disappear.</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-8"><section id="process" class="light" data-transition="fade">
+  <p class="eyebrow">How we work</p>
+  <h2 style="margin-bottom:14px">From your idea to live in production.</h2>
+  <p style="font-size:26px;color:#6B7280;margin-bottom:48px">Five steps. No surprises. You approve every stage before we move to the next one.</p>
+  <div style="display:flex;gap:0;border:1.5px solid #FDE68A;border-radius:20px;overflow:hidden">
+    <div style="flex:1;padding:36px 28px;border-right:1.5px solid #FDE68A">
+      <div class="step-num">01</div>
+      <p style="font-size:40px;margin-bottom:16px">🔭</p>
+      <h3 style="font-size:30px;color:#0F172A;margin-bottom:12px">Discover</h3>
+      <p style="font-size:24px;color:#4B5563">We document every requirement in plain language. You read it and approve it before we write one line of code.</p>
+    </div>
+    <div style="flex:1;padding:36px 28px;border-right:1.5px solid #FDE68A">
+      <div class="step-num">02</div>
+      <p style="font-size:40px;margin-bottom:16px">🎨</p>
+      <h3 style="font-size:30px;color:#0F172A;margin-bottom:12px">Design</h3>
+      <p style="font-size:24px;color:#4B5563">You see interactive prototypes. The real thing, not a sketch. Tell us what to change before we build it.</p>
+    </div>
+    <div style="flex:1;padding:36px 28px;border-right:1.5px solid #FDE68A">
+      <div class="step-num">03</div>
+      <p style="font-size:40px;margin-bottom:16px">⚡</p>
+      <h3 style="font-size:30px;color:#0F172A;margin-bottom:12px">Build</h3>
+      <p style="font-size:24px;color:#4B5563">Weekly demos. You watch it being built. No surprises at launch. Only progress updates.</p>
+    </div>
+    <div style="flex:1;padding:36px 28px;border-right:1.5px solid #FDE68A;background:#F0FDF4">
+      <div class="step-num" style="color:#059669">04</div>
+      <p style="font-size:40px;margin-bottom:16px">🔬</p>
+      <h3 style="font-size:30px;color:#0F172A;margin-bottom:12px">QA</h3>
+      <p style="font-size:24px;color:#4B5563">Wilfred leads a full testing cycle. Payments, load, edge cases. His sign-off is required before you see it.</p>
+    </div>
+    <div style="flex:1;padding:36px 28px">
+      <div class="step-num">05</div>
+      <p style="font-size:40px;margin-bottom:16px">🚀</p>
+      <h3 style="font-size:30px;color:#0F172A;margin-bottom:12px">Ship</h3>
+      <p style="font-size:24px;color:#4B5563">We deploy it, monitor the first 24 hours live, and stay on-call. We're not done until you're confident.</p>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-9"><section id="team" class="dark" data-transition="fade">
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:#0E0601"></div>
+  <div style="position:absolute;left:140px;top:128px;width:1640px">
+    <p class="eyebrow-light" style="margin-bottom:12px">Who you're working with</p>
+    <h2 style="color:#fff;margin-bottom:52px">Every project gets<br>our leads, personally.</h2>
+    <div style="display:flex;gap:40px">
+      <div style="flex:1;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.25);border-radius:20px;padding:44px 40px">
+        <div style="width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,#7C2D12,#F59E0B);display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+          <p style="font-size:32px;font-family:'Space Grotesk',Arial,sans-serif;font-weight:800;color:#fff">MO</p>
+        </div>
+        <h3 style="color:#fff;font-size:36px;margin-bottom:4px">Marissa Oco</h3>
+        <p style="font-size:24px;font-weight:600;color:#FDE68A;margin-bottom:20px">Co-founder & CTO</p>
+        <div style="height:2px;background:rgba(252,211,77,.2);margin-bottom:20px"></div>
+        <p style="font-size:26px;color:rgba(255,255,255,.65)">Full-stack engineer and builder. Leads architecture, product, and writes code on every project. Builds for the Philippine market: mobile-first, offline-resilient, payment-integrated.</p>
+      </div>
+      <div style="flex:1;background:rgba(5,150,105,.08);border:1.5px solid rgba(5,150,105,.25);border-radius:20px;padding:44px 40px">
+        <div style="width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,#064E3B,#059669);display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+          <p style="font-size:32px;font-family:'Space Grotesk',Arial,sans-serif;font-weight:800;color:#fff">WS</p>
+        </div>
+        <h3 style="color:#fff;font-size:36px;margin-bottom:4px">Wilfred Soriaga</h3>
+        <p style="font-size:24px;font-weight:600;color:#34D399;margin-bottom:20px">Co-founder · CX, Marketing & QA</p>
+        <div style="height:2px;background:rgba(52,211,153,.2);margin-bottom:20px"></div>
+        <p style="font-size:26px;color:rgba(255,255,255,.65)">The reason nothing ever ships broken. Leads quality assurance, customer experience, and marketing. If Wilfred hasn't cleared it, it doesn't go out. No exceptions.</p>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;padding:44px 40px">
+        <p style="font-size:48px;margin-bottom:20px">👥</p>
+        <h3 style="color:#fff;font-size:32px;margin-bottom:12px">Plus a team<br>of specialists</h3>
+        <div style="height:2px;background:rgba(255,255,255,.08);margin-bottom:20px"></div>
+        <p style="font-size:26px;color:rgba(255,255,255,.55);margin-bottom:16px">Mobile developers, product designers, and cloud engineers. Each project gets exactly who it needs.</p>
+        <p style="font-size:22px;color:rgba(255,255,255,.35)">React Native · Next.js · Node.js · AI/ML · GCash · Maya · NFC · AWS</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div>
+<div class="slide" id="slide-10"><section id="cta" class="dark" data-transition="fade">
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(135deg,#0D0520 0%,#0E0601 55%,#1A0A01 100%)"></div>
+  <div style="position:absolute;right:-150px;bottom:-150px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(120,60,220,.1),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;left:400px;top:-300px;width:1000px;height:1000px;background:radial-gradient(ellipse,rgba(245,158,11,.15),transparent 65%);border-radius:50%"></div>
+  <div style="position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none">
+    <span style="position:absolute;width:4px;height:4px;background:#FDE68A;border-radius:50%;opacity:.8;top:55px;left:1300px;box-shadow:0 0 10px 3px rgba(253,230,138,.5)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.5;top:120px;left:1600px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.7;top:200px;left:1800px;box-shadow:0 0 8px 2px rgba(253,230,138,.4)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4;top:85px;left:1480px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.6;top:320px;left:1650px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.45;top:450px;left:1400px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.65;top:600px;left:1700px;box-shadow:0 0 8px 2px rgba(253,230,138,.35)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.35;top:750px;left:1500px"></span>
+    <span style="position:absolute;width:4px;height:4px;background:#FDE68A;border-radius:50%;opacity:.85;top:880px;left:1820px;box-shadow:0 0 12px 4px rgba(253,230,138,.5)"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#FDE68A;border-radius:50%;opacity:.5;top:30px;left:900px"></span>
+    <span style="position:absolute;width:3px;height:3px;background:#FDE68A;border-radius:50%;opacity:.6;top:40px;left:1100px;box-shadow:0 0 6px 2px rgba(253,230,138,.3)"></span>
+    <span style="position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;opacity:.4;top:1030px;left:1200px"></span>
+    <span style="position:absolute;width:2px;height:2px;background:#FDE68A;border-radius:50%;opacity:.45;top:1000px;left:1600px"></span>
+  </div>
+  <div style="position:absolute;right:0;top:0;width:8px;height:1080px;background:linear-gradient(180deg,#F59E0B,#FDE68A,#F97316)"></div>
+  <div style="position:absolute;left:140px;top:0;bottom:0;width:1500px;display:flex;flex-direction:column;justify-content:center">
+    <p class="eyebrow-light" style="margin-bottom:24px">Next step</p>
+    <h1 style="color:#fff;font-size:112px;line-height:.95;letter-spacing:-.04em;margin-bottom:28px">Your guests<br><span style="color:#FDE68A">deserve this.</span></h1>
+    <p style="font-size:30px;color:rgba(255,255,255,.55);max-width:800px;margin-bottom:48px">Disney and Universal didn't earn guest loyalty with better rides. They earned it with a seamless experience. Tell us your venue and in 30 minutes we'll show you exactly what this looks like for you.</p>
+    <div style="display:flex;gap:40px;align-items:center">
+      <div style="background:rgba(245,158,11,.2);border:1.5px solid rgba(245,158,11,.4);border-radius:16px;padding:24px 36px">
+        <p style="font-size:22px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,211,77,.6);margin-bottom:6px">Email us</p>
+        <p style="font-size:32px;font-weight:700;color:#fff;font-family:'Space Grotesk',Arial,sans-serif">hello@minelabs.ph</p>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:16px;padding:24px 36px">
+        <p style="font-size:22px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Call or message</p>
+        <p style="font-size:32px;font-weight:700;color:#fff;font-family:'Space Grotesk',Arial,sans-serif">+63 917 000 0000</p>
+      </div>
+    </div>
+    <p style="font-size:24px;color:rgba(255,255,255,.25);margin-top:36px">mine. · Tagoloan, Misamis Oriental · if you can think it, it's yours.</p>
+  </div>
+  
+</section></div>
+  </div>
+</div>
+
+<button class="nav-btn" id="prev">&#8249;</button>
+<button class="nav-btn" id="next">&#8250;</button>
+
+<div id="dots">
+<div class="dot active" onclick="goTo(0)"></div><div class="dot" onclick="goTo(1)"></div><div class="dot" onclick="goTo(2)"></div><div class="dot" onclick="goTo(3)"></div><div class="dot" onclick="goTo(4)"></div><div class="dot" onclick="goTo(5)"></div><div class="dot" onclick="goTo(6)"></div><div class="dot" onclick="goTo(7)"></div><div class="dot" onclick="goTo(8)"></div><div class="dot" onclick="goTo(9)"></div><div class="dot" onclick="goTo(10)"></div>
+</div>
+<div id="counter">1 / 11</div>
+
+<script>
+var cur = 0, total = 11;
+var slides = document.querySelectorAll('.slide');
+var dots = document.querySelectorAll('.dot');
+var counter = document.getElementById('counter');
+var prev = document.getElementById('prev');
+var next = document.getElementById('next');
+
+function scale(){
+  var s = document.getElementById('scaler');
+  var sx = window.innerWidth / 1920;
+  var sy = window.innerHeight / 1080;
+  s.style.transform = 'scale(' + Math.min(sx,sy) + ')';
+}
+scale();
+window.addEventListener('resize', scale);
+
+function goTo(n){
+  slides[cur].classList.remove('active');
+  dots[cur].classList.remove('active');
+  cur = Math.max(0, Math.min(n, total-1));
+  slides[cur].classList.add('active');
+  dots[cur].classList.add('active');
+  counter.textContent = (cur+1) + ' / ' + total;
+  prev.disabled = cur === 0;
+  next.disabled = cur === total-1;
+}
+prev.addEventListener('click', function(){ goTo(cur-1) });
+next.addEventListener('click', function(){ goTo(cur+1) });
+document.addEventListener('keydown', function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') goTo(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') goTo(cur-1);
+  if(e.key==='Home') goTo(0);
+  if(e.key==='End') goTo(total-1);
+});
+goTo(0);
+</script>
+</body>
+</html>
